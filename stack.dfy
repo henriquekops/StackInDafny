@@ -36,11 +36,12 @@ class {:autocontracts} Stack
 
     // add: bool
     method add(e:int) returns (b: bool)
-    requires |content| < MAXSIZE
-    ensures content == old(content) + [e]
+    ensures b ==> content == old(content) + [e]
+    ensures !b ==> content == old(content)
+    ensures b <==> |old(content)| < MAXSIZE
     {
         var full := isFull();
-        if full{
+        if full {
             b := false;
         } else {
             a[cursor] := e;
@@ -65,7 +66,7 @@ class {:autocontracts} Stack
     method peek() returns (e: int)
     requires |content| > 0
     ensures content == old(content)
-    ensures e == old(content)[|content|-1]
+    ensures e == content[|content| - 1]
     {
         e := a[cursor-1];
     }
@@ -73,15 +74,15 @@ class {:autocontracts} Stack
     // isFull: bool
     method isFull() returns (b: bool)
     ensures content == old(content)
-    ensures b == (|content| == MAXSIZE) //???
+    ensures b <==> |content| == MAXSIZE
     {
-        b := max == cursor;
+        b := cursor == max;
     }
 
     // isEmpty: bool
     method isEmpty() returns (b: bool)
     ensures content == old(content)
-    ensures b == (|content| == 0)
+    ensures b <==> |content| == 0
     {
         b := cursor == 0;
     }
@@ -104,13 +105,12 @@ class {:autocontracts} Stack
 
     // invert: void
     method invert()
-    requires |content| > 0
+    requires |content| > 0 //opcional
     ensures |content| == |old(content)|
-    ensures forall i | 0 <= i < |content| :: content[i] == old(content[|content| - i - 1]);
+    ensures forall i | 0 <= i < |content| :: content[i] == old(content[|content| - i - 1])
     {
-        var i := 0;
         var b := new int[max];
-        
+
         forall i | 0 <= i < cursor
         {
             b[i] := a[cursor - i - 1];
@@ -132,39 +132,86 @@ class {:autocontracts} Stack
 
 method Main()
 {
-    var stack := new Stack(10);
+    var stack := new Stack(5);
+
+    var isEmpty := stack.isEmpty();
+    assert isEmpty;
+    var isFull := stack.isFull();
+    assert !isFull;
+    var howMany := stack.howMany();
+    assert howMany == 0;
 
     var a := stack.add(1);
+    assert a;
     var b := stack.add(2);
+    assert b;
     var c := stack.add(3);
+    assert c;
 
-    var q := stack.howMany();
-    assert q == 3;
-    var w := stack.maxSize();
-    assert w == 10;
-    var r := stack.peek();
-    assert r == 3;
+    howMany := stack.howMany();
+    assert howMany == 3;
+    var maxSize := stack.maxSize();
+    assert maxSize == 5;
+    var peek := stack.peek();
+    assert peek == 3;
 
     var d := stack.add(4);
+    assert d;
     var e := stack.add(5);
+    assert e;
     var f := stack.add(6);
-    var g := stack.add(7);
+    assert !f;
 
-    r := stack.peek();
-    assert r == 7;
+    peek := stack.peek();
+    assert peek == 5;
+
+    isEmpty := stack.isEmpty();
+    assert !isEmpty;
+    isFull := stack.isFull();
+    assert isFull;
+    howMany := stack.howMany();
+    assert howMany == 5;
+
+    var pop := stack.pop();
+    assert pop == 5;
+
+    isFull := stack.isFull();
+    assert !isFull;
+    howMany := stack.howMany();
+    assert howMany == 4;
+    peek := stack.peek();
+    assert peek == 4;
 
     stack.show();
     stack.invert();
     stack.show();
 
-    r := stack.peek();
-    assert r == 1;
+    peek := stack.peek();
+    assert peek == 1;
 
-    var p := stack.pop();
-    assert p == 1;
+    pop := stack.pop();
+    assert pop == 1;
 
-    r := stack.peek();
-    assert r == 2;
+    howMany := stack.howMany();
+    assert howMany == 3;
+    maxSize := stack.maxSize();
+    assert maxSize == 5;
+    peek := stack.peek();
+    assert peek == 2;
+
+    var g := stack.add(7);
+    assert g;
+
+    howMany := stack.howMany();
+    assert howMany == 4;
+    peek := stack.peek();
+    assert peek == 7;
+
+    var h := stack.add(8);
+    assert h;
+
+    isFull := stack.isFull();
+    assert isFull;
 
     stack.show();
 }
