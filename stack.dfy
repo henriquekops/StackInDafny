@@ -104,49 +104,28 @@ class {:autocontracts} Stack
 
     // invert: void
     method invert()
-    requires 0 <= cursor <= MAXSIZE
     requires |content| > 0
-    ensures cursor == old(cursor)
-    modifies this
-    {
-        var i, j := 0, cursor - 1;
-        while i < j
-        invariant 0 <= i <= j <= MAXSIZE;
-        invariant cursor == old(cursor);
-        {
-            a[i], a[j] := a[j], a[i];
-            i, j := i + 1, j - 1;
-        }
-        content := a[0..cursor];
-    }
-
-    method invert2()
-    requires |content| > 0
+    ensures |content| == |old(content)|
+    ensures forall i | 0 <= i < |content| :: content[i] == old(content[|content| - i - 1]);
     {
         var i := 0;
         var b := new int[max];
-
-        while i < cursor
-        invariant old(a) == a;
-        invariant old(cursor) == cursor;
+        
+        forall i | 0 <= i < cursor
         {
             b[i] := a[cursor - i - 1];
-            i := i + 1;
         }
+
         a := b;
-        content := a[0..cursor];
-        assert content == a[0..cursor];
-        assert max > 0;
-        assert a.Length == max;
-        assert 0 <= cursor <= max;
-        assert MAXSIZE == max;
-        assert content == a[0..cursor];
+        content := a[..cursor];
     }
 
     // show: void
     method show()
+    ensures old(content) == content
     {
-        print(a);
+        print(a[..cursor]);
+        print("\n");
     }
 
 }
@@ -155,14 +134,37 @@ method Main()
 {
     var stack := new Stack(10);
 
-    var a := stack.add(2);
-    var b := stack.add(8);
-    var c := stack.add(10);
+    var a := stack.add(1);
+    var b := stack.add(2);
+    var c := stack.add(3);
 
     var q := stack.howMany();
     assert q == 3;
     var w := stack.maxSize();
     assert w == 10;
-    var e := stack.peek();
-    assert e == 10;
+    var r := stack.peek();
+    assert r == 3;
+
+    var d := stack.add(4);
+    var e := stack.add(5);
+    var f := stack.add(6);
+    var g := stack.add(7);
+
+    r := stack.peek();
+    assert r == 7;
+
+    stack.show();
+    stack.invert();
+    stack.show();
+
+    r := stack.peek();
+    assert r == 1;
+
+    var p := stack.pop();
+    assert p == 1;
+
+    r := stack.peek();
+    assert r == 2;
+
+    stack.show();
 }
