@@ -11,7 +11,6 @@ class {:autocontracts} Stack
 
     // Class invariant
     predicate Valid()
-    reads this
     {
         max > 0
         && a.Length == max
@@ -20,6 +19,7 @@ class {:autocontracts} Stack
         && content == a[0..cursor]
     }
     
+    // Constructor for this class
     constructor (s: nat)
     requires s > 0
     ensures s == MAXSIZE
@@ -33,8 +33,7 @@ class {:autocontracts} Stack
         content := [];
     }
 
-
-    // add: bool
+    // Add item in this stack
     method add(e:int) returns (b: bool)
     ensures b ==> content == old(content) + [e]
     ensures !b ==> content == old(content)
@@ -51,7 +50,7 @@ class {:autocontracts} Stack
         }
     }
 
-    // pop: int
+    // Pop an item from this stack
     method pop() returns (e: int)
     requires |content| > 0
     ensures e == old(content)[|old(content)| - 1]
@@ -62,7 +61,7 @@ class {:autocontracts} Stack
         content := a[..cursor];
     }
 
-    // peek: int
+    // Peeks an item from this stack
     method peek() returns (e: int)
     requires |content| > 0
     ensures content == old(content)
@@ -71,7 +70,7 @@ class {:autocontracts} Stack
         e := a[cursor-1];
     }
 
-    // isFull: bool
+    // Checks if this stack is full
     method isFull() returns (b: bool)
     ensures content == old(content)
     ensures b <==> |content| == MAXSIZE
@@ -79,7 +78,7 @@ class {:autocontracts} Stack
         b := cursor == max;
     }
 
-    // isEmpty: bool
+    // Checks if this stack is empty
     method isEmpty() returns (b: bool)
     ensures content == old(content)
     ensures b <==> |content| == 0
@@ -87,7 +86,7 @@ class {:autocontracts} Stack
         b := cursor == 0;
     }
     
-    // howMany: nat
+    // Checks how many items this stack contains
     method howMany() returns (m: nat)
     ensures content == old(content)
     ensures m == |content|
@@ -95,7 +94,7 @@ class {:autocontracts} Stack
         m := cursor;
     }
 
-    // maxSize: nat
+    // Gets the maximum size of this stack
     method maxSize() returns (m: nat)
     ensures content == old(content)
     ensures m == MAXSIZE
@@ -103,9 +102,9 @@ class {:autocontracts} Stack
         m := max;
     }
 
-    // invert: void
+    // Inverts this stack
     method invert()
-    requires |content| > 0 //opcional
+    requires |content| > 0
     ensures |content| == |old(content)|
     ensures forall i | 0 <= i < |content| :: content[i] == old(content[|content| - i - 1])
     {
@@ -120,7 +119,7 @@ class {:autocontracts} Stack
         content := a[..cursor];
     }
 
-    // show: void
+    // Shows this stack content
     method show()
     ensures old(content) == content
     {
@@ -132,6 +131,7 @@ class {:autocontracts} Stack
 
 method Main()
 {
+    // Stack creation
     var stack := new Stack(5);
 
     var isEmpty := stack.isEmpty();
@@ -141,6 +141,9 @@ method Main()
     var howMany := stack.howMany();
     assert howMany == 0;
 
+    stack.show();
+
+    // Stack addition
     var a := stack.add(1);
     assert a;
     var b := stack.add(2);
@@ -154,7 +157,14 @@ method Main()
     assert maxSize == 5;
     var peek := stack.peek();
     assert peek == 3;
+    isEmpty := stack.isEmpty();
+    assert !isEmpty;
+    isFull := stack.isFull();
+    assert !isFull;
 
+    stack.show();
+
+    // Stack addition until is full
     var d := stack.add(4);
     assert d;
     var e := stack.add(5);
@@ -164,7 +174,6 @@ method Main()
 
     peek := stack.peek();
     assert peek == 5;
-
     isEmpty := stack.isEmpty();
     assert !isEmpty;
     isFull := stack.isFull();
@@ -172,26 +181,45 @@ method Main()
     howMany := stack.howMany();
     assert howMany == 5;
 
+    stack.show();
+
+    // Stack popping
     var pop := stack.pop();
     assert pop == 5;
 
     isFull := stack.isFull();
     assert !isFull;
+    isEmpty := stack.isEmpty();
+    assert !isEmpty;
     howMany := stack.howMany();
     assert howMany == 4;
     peek := stack.peek();
     assert peek == 4;
 
     stack.show();
-    stack.invert();
-    stack.show();
 
+    // Stack invertion
+    stack.invert();
+
+    isFull := stack.isFull();
+    assert !isFull;
+    isEmpty := stack.isEmpty();
+    assert !isEmpty;
+    howMany := stack.howMany();
+    assert howMany == 4;
     peek := stack.peek();
     assert peek == 1;
 
+    stack.show();
+
+    // Stack popping after inversion
     pop := stack.pop();
     assert pop == 1;
 
+    isFull := stack.isFull();
+    assert !isFull;
+    isEmpty := stack.isEmpty();
+    assert !isEmpty;
     howMany := stack.howMany();
     assert howMany == 3;
     maxSize := stack.maxSize();
@@ -199,19 +227,35 @@ method Main()
     peek := stack.peek();
     assert peek == 2;
 
+    // Stack addition after inversion
     var g := stack.add(7);
     assert g;
 
+    isFull := stack.isFull();
+    assert !isFull;
+    isEmpty := stack.isEmpty();
+    assert !isEmpty;
     howMany := stack.howMany();
     assert howMany == 4;
+    maxSize := stack.maxSize();
+    assert maxSize == 5;
     peek := stack.peek();
     assert peek == 7;
 
+    // Stack addition until is full after inversion
     var h := stack.add(8);
     assert h;
 
     isFull := stack.isFull();
     assert isFull;
+    isEmpty := stack.isEmpty();
+    assert !isEmpty;
+    howMany := stack.howMany();
+    assert howMany == 5;
+    maxSize := stack.maxSize();
+    assert maxSize == 5;
+    peek := stack.peek();
+    assert peek == 8;
 
     stack.show();
 }
