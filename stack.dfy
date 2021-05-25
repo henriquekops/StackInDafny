@@ -198,7 +198,7 @@ method Main()
 
     stack.show();
 
-    // Stack invertion
+    // Stack inversion
     stack.invert();
 
     isFull := stack.isFull();
@@ -245,7 +245,7 @@ method Main()
     assert peek == 7;
 
     stack.show();
-    
+
     // Stack addition until is full after inversion
     var h := stack.add(8);
     assert h;
@@ -260,6 +260,23 @@ method Main()
     assert maxSize == 5;
     peek := stack.peek();
     assert peek == 8;
+
+    stack.show();
+
+    // Stack inversion again
+
+    stack.invert();
+
+    isFull := stack.isFull();
+    assert isFull;
+    isEmpty := stack.isEmpty();
+    assert !isEmpty;
+    howMany := stack.howMany();
+    assert howMany == 5;
+    maxSize := stack.maxSize();
+    assert maxSize == 5;
+    peek := stack.peek();
+    assert peek == 4;
 
     stack.show();
 }
