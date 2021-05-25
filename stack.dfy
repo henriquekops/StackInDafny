@@ -227,6 +227,8 @@ method Main()
     peek := stack.peek();
     assert peek == 2;
 
+    stack.show();
+
     // Stack addition after inversion
     var g := stack.add(7);
     assert g;
@@ -242,6 +244,8 @@ method Main()
     peek := stack.peek();
     assert peek == 7;
 
+    stack.show();
+    
     // Stack addition until is full after inversion
     var h := stack.add(8);
     assert h;
