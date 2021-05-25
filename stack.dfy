@@ -249,6 +249,8 @@ method Main()
     // Stack addition until is full after inversion
     var h := stack.add(8);
     assert h;
+    var i := stack.add(9);
+    assert !i;
 
     isFull := stack.isFull();
     assert isFull;
